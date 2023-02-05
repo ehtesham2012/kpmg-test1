@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mediawiki
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mediawiki
+  template:
+    metadata:
+      labels:
+        app: mediawiki
+    spec:
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: mediawiki
+          image: gcr.io/kubernetes-test-376608/mediawiki:latest
+          ports:
+            - name: tcp
+              protocol: TCP
+              containerPort: 80
+        - name: mysql-mediawiki
+          image: gcr.io/kubernetes-test-376608/mysql-mediawiki:latest
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom: 
+               secretKeyRef:
+                name: mysql-mediawiki-secret 
+                key: password
+          ports:
+            - name: tcp
+              protocol: TCP
+              containerPort: 3306
+          volumeMounts:
+            - name: mysql-mediawiki-pv-claim
+              mountPath: /var/lib/mysql-mediawiki
+      volumes:
+      - name: mysql-mediawiki-pv-claim
+        persistentVolumeClaim:
+          claimName: mysql-mediawiki-pv-claim         
+  

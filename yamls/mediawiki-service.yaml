@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mediawiki
+  labels:
+    app: mediawiki
+spec:
+  type: LoadBalancer
+  selector:
+    app: mediawiki
+  ports:
+    - name: tcp
+      protocol: TCP
+      port: 80
+      targetPort: 80

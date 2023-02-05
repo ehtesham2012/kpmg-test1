@@ -1,0 +1,31 @@
+steps:
+#First Clone from Google Cloud Source Repository  
+- name: 'gcr.io/cloud-builders/git'
+  args: ['clone','https://github.com/ehtesham2012/kpmg-test1.git']
+
+#Build the mediawiki image 
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build','-t','gcr.io/kubernetes-test-376608/mediawiki:latest','mediawiki/.']
+
+#Build the mediawiki mysql image 
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build','-t','gcr.io/kubernetes-test-376608/mysql-mediawiki:latest','mysql/.']
+
+#Push the mediawiki image  
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push','gcr.io/kubernetes-test-376608/mediawiki:latest']
+
+#Push the mediawiki mysql image  
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push','gcr.io/kubernetes-test-376608/mysql-mediawiki:latest']
+
+#Apply Kubernetes manifest files  
+- name: 'gcr.io/cloud-builders/kubectl'
+  args: ['apply', '-f', 'yamls/', '--recursive', '--namespace', 'kpmg-test']
+  env:
+  - 'CLOUDSDK_COMPUTE_ZONE=us-central1-c'
+  - 'CLOUDSDK_CONTAINER_CLUSTER=cluster-1'
+   
+options:
+  logging: CLOUD_LOGGING_ONLY
+
